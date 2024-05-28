@@ -1,108 +1,120 @@
 #!/bin/bash
 #coding: utf-8
-#AUTHOR : DEVIL MASTER
+# ORIGINAL AUTHOR : DEVIL MASTER
 #GITHUB - https://github.com/isuruwa
+# MOD DEV: Dev
+# GITHUB - https://github.com/Dev-Yoko
 #Make proper Credits When you copy
 
+# Define colors
 re='\e[1;31m'
-white='\e[1;37m'
-bl='\e[1;34m'
-Escape="\033";
-ref="${Escape}[31m";
-gf="${Escape}[32m";
-lgf="${Escape}[92m"
-yf="${Escape}[33m";
-bf="${Escape}[34m";
-cf="${Escape}[36m";
-ee="${Escape}[0m";
+lg='\e[1;32m'
+lgf='\e[92m'
 pu='\033[1;35m'
 cy='\e[0;36m'
-lg='\e[1;32m'
-ye='\e[1;33m'
-pink='\033[1;35m'
+ee='\033[0m'
 
+# Define PREFIX
+PREFIX="/usr/local"
+
+# Function to check if gcloud SDK is installed
 function check_req(){
   if command -v gcloud &> /dev/null
   then
-      echo -e $lg "[ ✔ ] G-cloud SDK Installed"
+      echo -e "${lg}✅ G-cloud SDK Installed${ee}"
       sleep 3
       menu
   else
-      echo -e $re "[ x ] G-cloud SDK not Installed"
-      sleep 3
-      menu
+      echo -e "${re}❌ G-cloud SDK not Installed${ee}"
+      echo -e "${pu}❓ Do you want to install it now? (y/n) : ${ee}"
+      read -r install_prompt
+      if [[ $install_prompt == "y" || $install_prompt == "Y" || $install_prompt == "yes" || $install_prompt == "Yes" ]]
+      then
+          select_installation_method
+      else
+          echo -e "${lgf}Exiting...${ee}"
+          exit 0
+      fi
   fi
 }
 
-function tmuxgcloud(){
-  echo -n -e $lgf "\n  [+] Are you sure (y/n) : "
-  read prompt
+# Function to select installation method
+function select_installation_method(){
+  echo -e "${cy}🛠️ Select installation method:"
+  echo -e "  [1] Termux"
+  echo -e "  [2] Linux${ee}"
+  read -r method
+  case $method in
+    1) install_tmuxgcloud ;;
+    2) install_lnxgcloud ;;
+    *) echo -e "${re}❗ Invalid option${ee}" && sleep 2 && select_installation_method ;;
+  esac
+}
+
+# Function to install gcloud SDK in Termux
+function install_tmuxgcloud(){
+  echo -e "${lgf}\n  [+] Installing G-cloud SDK in Termux..."
+  echo -e "${lgf}  [+] Are you sure you want to proceed? (y/n) : ${ee}"
+  read -r prompt
   if [[ $prompt == "y" || $prompt == "Y" || $prompt == "yes" || $prompt == "Yes" ]]
   then
       pkg install python2 curl openssh
       export CLOUDSDK_PYTHON='python2.7'
       echo "export CLOUDSDK_PYTHON='python2.7'" >> ~/.bashrc
-      echo "export PATH=$PATH:$PREFIX/google-cloud-sdk/bin"
+      echo "export PATH=\"$PATH:$PREFIX/google-cloud-sdk/bin\"" >> ~/.bashrc
       curl -o sdk.sh sdk.cloud.google.com
       chmod +x sdk.sh
-      ./sdk.sh --install-dir=$PREFIX
-      echo -e $lgf "\n  [+] Open a new session/terminal , Restart the script & Select option 3 from menu to Authorize G-Cloud"
+      ./sdk.sh --install-dir="$PREFIX"
+      echo -e "${lgf}\n  [+] Installation complete. Open a new session/terminal, restart the script, and select option 3 from the menu to authorize G-Cloud.${ee}"
+      menu  # Return to the menu
       exit 0
   else
-      echo -e $re "\n  [!] User Cancelled"
+      echo -e "${re}\n  [❌] User Cancelled${ee}"
+      menu  # Return to the menu
   fi
 }
 
-function lnxgcloud(){
-  echo -n -e $lgf "\n  [+] Are you sure (y/n) : "
-  read prompt
+# Function to install gcloud SDK in Linux
+function install_lnxgcloud(){
+  echo -e "${lgf}\n  [+] Installing G-cloud SDK in Linux..."
+  echo -e "${lgf}  [+] Are you sure you want to proceed? (y/n) : ${ee}"
+  read -r prompt
   if [[ $prompt == "y" || $prompt == "Y" || $prompt == "yes" || $prompt == "Yes" ]]
   then
       echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
       sudo apt-get install apt-transport-https ca-certificates gnupg
       curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
       sudo apt-get update && sudo apt-get install google-cloud-sdk
-      echo -e $lgf "\n  [+] Open a new session/terminal , Restart the script & Select option 3 from menu to Authorize G-Cloud"
+      echo -e "${lgf}\n  [+] Installation complete. Open a new session/terminal, restart the script, and select option 3 from the menu to authorize G-Cloud.${ee}"
+      menu  # Return to the menu
   else
-      echo -e $re "\n  [!] User Cancelled"
+      echo -e "${re}\n  [❌] User Cancelled${ee}"
+      menu  # Return to the menu
   fi
 }
 
+# Function to display the main menu
 function menu() {
   clear
-  figlet -f smmono9 " G-cloud SDK" | lolcat
-  echo -e " \e[1;37m [\e[1;31m+\e[1;37m]|------------------------------------------|\e[1;37m[\e[1;31m+\e[1;37m]"
-  echo -e " \e[1;37m [\e[1;31m+\e[1;37m]|        DEVELOPED BY DEVIL MASTER         |\e[1;37m[\e[1;31m+\e[1;37m]"
-  echo -e " \e[1;37m [\e[1;31m+\e[1;37m]|           github.com/isuruwa             |\e[1;37m[\e[1;31m+\e[1;37m]"
-  echo -e " \e[1;37m [\e[1;31m+\e[1;37m]|------------------------------------------|\e[1;37m[\e[1;31m+\e[1;37m]\n\n"
-  echo -e "\033[35m  [\e[1;37m1\033[35m]\e[1;37m Install G-cloud sdk in Termux"
-  echo -e "\033[35m  [\e[1;37m2\033[35m]\e[1;37m Install G-cloud sdk in Linux"
-  echo -e "\033[35m  [\e[1;37m3\033[35m]\e[1;37m Authorize G-Cloud"
-  echo -e "\033[35m  [\e[1;37m4\033[35m]\e[1;37m Launch  G-cloud shell"
-  echo -e "\033[35m  [\e[1;37m5\033[35m]\e[1;37m Update to latest Cloud SDK\n"
-  echo -e -n "\033[35m  [\e[1;37m+\033[35m]\e[1;37m Enter Option : "
-  read prompt
-  if [[ $prompt == "1" || $prompt == "01" ]]
-  then
-      tmuxgcloud
-  elif [[ $prompt == "2" || $prompt == "02" ]]
-  then
-      lnxgcloud
-  elif [[ $prompt == "3" || $prompt == "03" ]]
-  then
-      gcloud auth login
-      echo -e $lgf "G-cloud Login Auth [Done ✔ ] "
-      sleep 3
-  elif [[ $prompt == "4" || $prompt == "04" ]]
-  then
-      gcloud alpha cloud-shell ssh
-  elif [[ $prompt == "5" || $prompt == "05" ]]
-  then
-      gcloud components update
-  else
-      menu
-  fi
+  echo -e "${pu}=============================================="
+  echo -e "${pu}           G-cloud SDK Menu                   "
+  echo -e "${pu}==============================================${ee}"
+  echo -e "${cy}  [1] Install G-cloud SDK"
+  echo -e "  [2] Authorize G-Cloud"
+  echo -e "  [3] Launch G-cloud shell"
+  echo -e "  [4] Update to latest Cloud SDK"
+  echo -e "  [5] Exit${ee}"
+  echo -e -n "${pu}  Enter Option : ${ee}"
+  read -r prompt
+  case $prompt in
+    1) select_installation_method ;;
+    2) gcloud auth login ;;
+    3) gcloud alpha cloud-shell ssh ;;
+    4) gcloud components update ;;
+    5) echo -e "${lgf}Exiting...${ee}" && exit 0 ;;
+    *) echo -e "${re}\n  [❗] Invalid Option${ee}" && sleep 2 && menu ;;
+  esac
 }
 
+# Start the script
 check_req
-
